@@ -1,0 +1,2274 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-b4mVXOrqWsceVmV9ZA9u6SYrcy/m/MBTNERMlCZz9eI='; style-src 'sha256-kuB1i5cNnxjA2AQWH6t9zTf+gaSTsjLybvcfi1fUYWw='; img-src data:; connect-src https://docs.google.com https://*.googleusercontent.com; base-uri 'none'; form-action 'none'; object-src 'none'; upgrade-insecure-requests">
+    <meta name="referrer" content="no-referrer">
+    <title>Pesquisa Código Locais - Campus Rio Pomba</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #ffffff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            background: #ffffff;
+            padding: 20px 30px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border: 2px solid #00954A;
+        }
+        
+        .header-content {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .logo {
+            max-height: 120px;
+            width: auto;
+        }
+        
+        .header-text {
+            text-align: center;
+            flex: 1;
+            min-width: 300px;
+        }
+        
+        h1 {
+            color: #00954A;
+            font-size: 1.8em;
+            margin-bottom: 8px;
+        }
+        
+        .subtitle {
+            color: #333;
+            font-size: 1em;
+            margin-bottom: 20px;
+        }
+        
+        .search-box {
+            display: flex;
+            gap: 10px;
+            max-width: 600px;
+            margin: 20px auto 0;
+        }
+        
+        .search-box input {
+            flex: 1;
+            padding: 15px 20px;
+            border: 2px solid #00954A;
+            border-radius: 10px;
+            font-size: 16px;
+            background: #fff;
+            color: #333;
+        }
+        
+        .search-box input:focus {
+            outline: none;
+            border-color: #E32D2D;
+            box-shadow: 0 0 10px rgba(227, 45, 45, 0.2);
+        }
+        
+        .search-box input::placeholder {
+            color: #888;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .stat {
+            background: rgba(0, 149, 74, 0.1);
+            padding: 10px 20px;
+            border-radius: 10px;
+            color: #00954A;
+            font-weight: 500;
+        }
+        
+        .stat span {
+            font-weight: bold;
+            font-size: 1.2em;
+            color: #E32D2D;
+        }
+        
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #555;
+            font-size: 0.85em;
+        }
+        
+        .legend-color {
+            width: 18px;
+            height: 18px;
+            border-radius: 4px;
+        }
+        
+        .tree-container {
+            background: #fff;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border: 2px solid #00954A;
+        }
+        
+        .tree-item {
+            margin: 4px 0;
+        }
+        
+        .tree-header {
+            display: flex;
+            align-items: center;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            gap: 10px;
+        }
+        
+        .tree-header:hover {
+            transform: translateX(5px);
+        }
+        
+        /* Nível 1 - Verde escuro */
+        .level-1 > .tree-header {
+            background: #00954A;
+            color: #fff;
+            font-weight: bold;
+            font-size: 1.05em;
+        }
+        
+        /* Nível 2 - Verde médio */
+        .level-2 > .tree-header {
+            background: #2AAD6A;
+            color: #fff;
+            margin-left: 20px;
+        }
+        
+        /* Nível 3 - Verde claro */
+        .level-3 > .tree-header {
+            background: #5DC08A;
+            color: #fff;
+            margin-left: 40px;
+        }
+        
+        /* Nível 4 - Verde mais claro */
+        .level-4 > .tree-header {
+            background: #8ED4AC;
+            color: #333;
+            margin-left: 60px;
+        }
+        
+        .tree-icon {
+            font-size: 1.1em;
+            transition: transform 0.3s ease;
+        }
+        
+        .tree-item.expanded > .tree-header .tree-icon {
+            transform: rotate(90deg);
+        }
+        
+        .tree-children {
+            display: none;
+            padding-left: 0;
+        }
+        
+        .tree-item.expanded > .tree-children {
+            display: block;
+        }
+        
+        .codigo {
+            background: #E32D2D;
+            color: #fff;
+            padding: 3px 12px;
+            border-radius: 15px;
+            font-size: 0.85em;
+            font-weight: bold;
+            margin-left: auto;
+        }
+        
+        .highlight {
+            background: #FFE9A8 !important;
+            border: 2px solid #E6A700 !important;
+            color: #2B2B2B !important;
+        }
+        
+        .highlight .tree-name {
+            color: #2B2B2B !important;
+        }
+        
+        .highlight .codigo {
+            background: #00954A;
+            color: #fff;
+        }
+        
+        .no-children .tree-icon {
+            opacity: 0.3;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        .buttons-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .expand-all-btn {
+            background: #00954A;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        
+        .expand-all-btn:hover {
+            background: #007a3d;
+            transform: scale(1.02);
+        }
+        
+        @media (max-width: 768px) {
+            h1 { font-size: 1.4em; }
+            .logo { max-height: 80px; }
+            .level-2 > .tree-header { margin-left: 10px; }
+            .level-3 > .tree-header { margin-left: 20px; }
+            .level-4 > .tree-header { margin-left: 30px; }
+            .stats { gap: 15px; }
+            .legend { gap: 8px; }
+            .header-content { gap: 15px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-content">
+                <img src="data:image/png;base64,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" alt="IF Sudeste MG - Campus Rio Pomba" class="logo">
+                <div class="header-text">
+                    <h1>Pesquisa código locais do campus Rio Pomba</h1>
+                    <p class="subtitle">Consulte os códigos para auxiliar no inventário do campus</p>
+                </div>
+            </div>
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="🔍 Buscar por código, nome ou setor...">
+            </div>
+            <div class="stats">
+                <div class="stat">📁 Total: <span id="totalItems">0</span> itens</div>
+                <div class="stat">🔍 Encontrados: <span id="foundItems">0</span></div>
+            </div>
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #00954A;"></div>
+                    Nível 1
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #2AAD6A;"></div>
+                    Nível 2
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #5DC08A;"></div>
+                    Nível 3
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #8ED4AC;"></div>
+                    Nível 4
+                </div>
+            </div>
+        </header>
+        
+        <div class="tree-container">
+            <div class="buttons-container">
+                <button class="expand-all-btn" onclick="expandAll()">📂 Expandir Tudo</button>
+                <button class="expand-all-btn" onclick="collapseAll()">📁 Recolher Tudo</button>
+            </div>
+            <div id="treeRoot"></div>
+        </div>
+    </div>
+
+    <script>
+        let treeData = {
+  "DIRETORIA DE ENSINO": {
+    "codigo": null,
+    "children": {
+      "DIRETORIA DE ENSINO": {
+        "codigo": "20000",
+        "children": {}
+      },
+      "PREDIO CENTRAL - SALAS E AREAS COLETIVAS": {
+        "codigo": null,
+        "children": {
+          "PREDIO CENTRAL - SALA 1": {
+            "codigo": "20001",
+            "children": {}
+          },
+          "PREDIO CENTRAL - SALA 2": {
+            "codigo": "20002",
+            "children": {}
+          },
+          "PREDIO CENTRAL - SALA 3": {
+            "codigo": "20003",
+            "children": {}
+          },
+          "PREDIO CENTRAL - SALA 4": {
+            "codigo": "20004",
+            "children": {}
+          },
+          "PREDIO CENTRAL - SALA 5": {
+            "codigo": "20005",
+            "children": {}
+          },
+          "PREDIO CENTRAL - SALA 6": {
+            "codigo": "20006",
+            "children": {}
+          },
+          "PREDIO CENTRAL - SALA 7": {
+            "codigo": "20007",
+            "children": {}
+          },
+          "PREDIO CENTRAL - SALA 8": {
+            "codigo": "20008",
+            "children": {}
+          },
+          "PREDIO CENTRAL - SALA 9": {
+            "codigo": "20009",
+            "children": {}
+          },
+          "PREDIO CENTRAL - SALA 10": {
+            "codigo": "20010",
+            "children": {}
+          },
+          "PREDIO CENTRAL - SALA 11": {
+            "codigo": "20011",
+            "children": {}
+          },
+          "PREDIO CENTRAL - SALA 12": {
+            "codigo": "20012",
+            "children": {}
+          },
+          "PREDIO CENTRAL - SALA 13": {
+            "codigo": "20013",
+            "children": {}
+          },
+          "PREDIO CENTRAL - SALA 14": {
+            "codigo": "20014",
+            "children": {}
+          },
+          "PREDIO CENTRAL - SALA 15": {
+            "codigo": "20015",
+            "children": {}
+          },
+          "PREDIO CENTRAL - SALA 16": {
+            "codigo": "20016",
+            "children": {}
+          },
+          "PREDIO CENTRAL - ANFITEATRO": {
+            "codigo": "20017",
+            "children": {}
+          },
+          "PREDIO CENTRAL - CORREDORES": {
+            "codigo": "20018",
+            "children": {}
+          },
+          "PREDIO CENTRAL - COPA E DML": {
+            "codigo": "20019",
+            "children": {}
+          },
+          "PREDIO CENTRAL - LABORATORIO DE QUIMICA": {
+            "codigo": "20020",
+            "children": {}
+          },
+          "DEPÓSITO DO PREDIO CENTRAL": {
+            "codigo": "20021",
+            "children": {}
+          }
+        }
+      },
+      "SALA DA DIRETORIA DE ENSINO": {
+        "codigo": "20022",
+        "children": {}
+      },
+      "COORDENACAO GERAL DE ENSINO TECNICO": {
+        "codigo": "21000",
+        "children": {}
+      },
+      "COORDENACAO GERAL DE GRADUACAO": {
+        "codigo": "22000",
+        "children": {}
+      },
+      "COORDENACAO GERAL DE ASSUNTOS E REGISTROS ACADEMIC": {
+        "codigo": null,
+        "children": {
+          "COORDENACAO GERAL DE ASSUNTOS E REGISTROS ACADEMIC": {
+            "codigo": "23000",
+            "children": {}
+          },
+          "SECRETARIA DE REGISTROS ESCOLARES - TÉCNICO": {
+            "codigo": "23100",
+            "children": {}
+          },
+          "SECRETARIA DE REGISTROS ESCOLARES - GRADUAÇÃO": {
+            "codigo": "23200",
+            "children": {}
+          }
+        }
+      },
+      "COORDENACAO GERAL DE ASSISTENCIA ESTUDANTIL": {
+        "codigo": "24000",
+        "children": {}
+      },
+      "ENFERMARIA - SERVICO MEDICO E ODONTOLOGICO": {
+        "codigo": "24100",
+        "children": {}
+      },
+      "NAI - NUCLEO DE ACOES INCLUSIVAS": {
+        "codigo": "24200",
+        "children": {}
+      },
+      "REFEITORIO": {
+        "codigo": null,
+        "children": {
+          "REFEITORIO": {
+            "codigo": "24300",
+            "children": {}
+          },
+          "COZINHA": {
+            "codigo": "24301",
+            "children": {}
+          },
+          "SALA NUTRICIONISTAS": {
+            "codigo": "24302",
+            "children": {}
+          },
+          "REFEITORIO - AREA DE ALIMENTACAO": {
+            "codigo": "24303",
+            "children": {}
+          }
+        }
+      },
+      "BIBLIOTECA": {
+        "codigo": null,
+        "children": {
+          "BIBLIOTECA": {
+            "codigo": "25000",
+            "children": {}
+          },
+          "BIBLIOTECA - PRIMEIRO ANDAR": {
+            "codigo": "25001",
+            "children": {}
+          },
+          "BIBLIOTECA - PRIMEIRO ANDAR - DEPOSITO": {
+            "codigo": "25002",
+            "children": {}
+          },
+          "BIBLIOTECA - SEGUNDO ANDAR": {
+            "codigo": "25003",
+            "children": {}
+          }
+        }
+      },
+      "CEAD - COORDENACAO DE ENSINO A DISTANCIA": {
+        "codigo": null,
+        "children": {
+          "CEAD - COORDENACAO DE ENSINO A DISTANCIA": {
+            "codigo": "27000",
+            "children": {}
+          },
+          "CEAD - LABORATORIO DE INFORMATICA 1": {
+            "codigo": "27001",
+            "children": {}
+          },
+          "CEAD - LABORATORIO DE INFORMATICA 2": {
+            "codigo": "27002",
+            "children": {}
+          },
+          "CEAD - SALA DA COORDENACAO": {
+            "codigo": "27003",
+            "children": {}
+          },
+          "CEAD - SALA DOS PROFESSORES": {
+            "codigo": "27004",
+            "children": {}
+          },
+          "CEAD - ALMOXARIFADO": {
+            "codigo": "27005",
+            "children": {}
+          }
+        }
+      },
+      "IPCA - INSTITUTO DE PESQUISA E CIÊNCIAS APLICADAS": {
+        "codigo": null,
+        "children": {
+          "IPCA - INSTITUTO DE PESQUISA E CIÊNCIAS APLICADAS": {
+            "codigo": "28000",
+            "children": {}
+          },
+          "IPCA - 1º ANDAR - LABORATORIO DE BIOLOGIA VEGETAL": {
+            "codigo": "28001",
+            "children": {}
+          },
+          "IPCA - 1º ANDAR - LABORATORIO DE BIOQUIMICA E QUIMICA ORGANICA": {
+            "codigo": "28002",
+            "children": {}
+          },
+          "IPCA - 1º ANDAR - LABORATORIO DE ANALISE DE ALIMENTOS": {
+            "codigo": "28003",
+            "children": {}
+          },
+          "IPCA - 1º ANDAR - LABORATORIO DE NUTRICAO": {
+            "codigo": "28004",
+            "children": {}
+          },
+          "IPCA - 1º ANDAR - LABORATORIO DE AGUA E RESIDUOS": {
+            "codigo": "28005",
+            "children": {}
+          },
+          "IPCA - 1º ANDAR - LABORATORIO DE BIOLOGIA MOLECULAR E MICROORGANISMOS": {
+            "codigo": "28006",
+            "children": {}
+          },
+          "IPCA - 1º ANDAR - LABORATORIO DE QUIMICA AVANCADA": {
+            "codigo": "28007",
+            "children": {}
+          },
+          "IPCA - 1º ANDAR - DML": {
+            "codigo": "28008",
+            "children": {}
+          },
+          "IPCA - 2º ANDAR - LABORATORIO DE EQUIPAMENTOS ESPECIAIS": {
+            "codigo": "28009",
+            "children": {}
+          },
+          "IPCA - 2 ANDAR - NITTEC - EMBRAPII": {
+            "codigo": "28010",
+            "children": {}
+          },
+          "IPCA - 2º ANDAR - LABORATORIO DE TV DIGITAL E VÍDEO": {
+            "codigo": "28011",
+            "children": {}
+          },
+          "IPCA - 2º ANDAR - LABORATORIO DE EDUCACAO APLICADA A NOVAS TECNOLOGIAS": {
+            "codigo": "28012",
+            "children": {}
+          },
+          "IPCA - 2º ANDAR - PURIFICACAO DE AGUA  E PRODUCAO DE GELO": {
+            "codigo": "28013",
+            "children": {}
+          },
+          "IPCA - 2º ANDAR - ALMOXARIFADO DE REAGENTES": {
+            "codigo": "28014",
+            "children": {}
+          },
+          "IPCA - 2º ANDAR - LABORATORIO DE ESTATISTICA": {
+            "codigo": "28015",
+            "children": {}
+          },
+          "IPCA - 2º ANDAR - LABORATORIO DE GEOPROCESSAMENTO": {
+            "codigo": "28016",
+            "children": {}
+          },
+          "IPCA - 2º ANDAR - LABORATORIO DE SEGURANCA DO TRABALHO": {
+            "codigo": "28017",
+            "children": {}
+          },
+          "IPCA - 2º ANDAR - SALA DE REUNIAO": {
+            "codigo": "28018",
+            "children": {}
+          },
+          "IPCA - 2º ANDAR - COPA": {
+            "codigo": "28019",
+            "children": {}
+          }
+        }
+      }
+    }
+  },
+  "DAAA - DEP. ACADEM. DE AGRICULTURA E MEIO AMBIENTE": {
+    "codigo": null,
+    "children": {
+      "DAAA - DEP. ACADEM. DE AGRICULTURA E MEIO AMBIENTE": {
+        "codigo": "26100",
+        "children": {}
+      },
+      "DAAA - PRODUÇÃO AGRÍCOLA": {
+        "codigo": "26101",
+        "children": {}
+      },
+      "DAAA - PRODUÇÃO AGRÍCOLA / HORTO FLORESTAL": {
+        "codigo": "26102",
+        "children": {}
+      },
+      "LABORATORIOS": {
+        "codigo": null,
+        "children": {
+          "DAAA - LABORATÓRIO DE MERISTEMA": {
+            "codigo": "26103",
+            "children": {}
+          },
+          "DAAA - LABORATÓRIO DE PROPAGAÇÃO DE PLANTAS": {
+            "codigo": "26104",
+            "children": {}
+          },
+          "DAAA - LABORATÓRIO DE ANÁLISE DE SOLOS": {
+            "codigo": "26105",
+            "children": {}
+          },
+          "DAAA - LABORATÓRIO DE PRÁTICA DE SOLOS": {
+            "codigo": "26113",
+            "children": {}
+          },
+          "DAAA - LABORATORIO DE CALDAS": {
+            "codigo": "26119",
+            "children": {}
+          },
+          "DAAA - LABORATORIO DE ECOLOGIA": {
+            "codigo": "26123",
+            "children": {}
+          }
+        }
+      },
+      "DAAA - AGRICULTURA - SALA 02": {
+        "codigo": "26106",
+        "children": {}
+      },
+      "DAAA - AGRICULTURA - SALA 03": {
+        "codigo": "26107",
+        "children": {}
+      },
+      "DAAA - AGRONOMIA - LABORATÓRIO DE MICROBIOLOGIA": {
+        "codigo": "26108",
+        "children": {}
+      },
+      "DAAA - RECEPÇÃO PRÉDIO 1 - AGRONOMIA": {
+        "codigo": "26109",
+        "children": {}
+      },
+      "DAAA - AGRICULTURA - SALA PROFESSORES (AO LADO DA SALA 4)": {
+        "codigo": "26110",
+        "children": {}
+      },
+      "DAAA - NEA - NUCLEO DE ESTUDOS DA AGROECOLOGIA (GAIOLA)": {
+        "codigo": "26111",
+        "children": {}
+      },
+      "DAAA - AGRICULTURA - SALA 04": {
+        "codigo": "26112",
+        "children": {}
+      },
+      "DAAA - AGRICULTURA - COZINHA": {
+        "codigo": "26114",
+        "children": {}
+      },
+      "DAAA - AGRICULTURA": {
+        "codigo": null,
+        "children": {
+          "DAAA - AGRICULTURA - SALA 01": {
+            "codigo": "26115",
+            "children": {}
+          },
+          "DAAA - AGRICULTURA - SALA 04": {
+            "codigo": "26116",
+            "children": {}
+          }
+        }
+      },
+      "DAAA - SALA DA GERENCIA DO DAAA": {
+        "codigo": "26117",
+        "children": {}
+      },
+      "DAAA - DEPOSITO DE FERRAMENTAS E TOPOGRAFIA": {
+        "codigo": "26118",
+        "children": {}
+      },
+      "DAAA - OLERICULTURA 1": {
+        "codigo": "26120",
+        "children": {}
+      },
+      "DAAA - OLERICULTURA 2": {
+        "codigo": "26121",
+        "children": {}
+      },
+      "DAAA - GALPAO DE ARMAZENAMENTO DE FRUTAS E SEMENTES": {
+        "codigo": "26122",
+        "children": {}
+      },
+      "DAAA - PREDIO 1": {
+        "codigo": null,
+        "children": {
+          "DAAA - PREDIO 1 - VARANDA": {
+            "codigo": "26124",
+            "children": {}
+          },
+          "DAAA - PREDIO 1 - SALA DOS PROFESSORES": {
+            "codigo": "26125",
+            "children": {}
+          },
+          "DAAA - PREDIO 1 - LABORATORIO MULTIUSO": {
+            "codigo": "26126",
+            "children": {}
+          },
+          "DAAA - PREDIO 1 - SALA 1": {
+            "codigo": "26127",
+            "children": {}
+          },
+          "DAAA - PREDIO 1 - SALA 2": {
+            "codigo": "26128",
+            "children": {}
+          },
+          "DAAA - PREDIO 1 - SALA 3": {
+            "codigo": "26129",
+            "children": {}
+          }
+        }
+      },
+      "DAAA - PREDIO 2": {
+        "codigo": null,
+        "children": {
+          "DAAA - PREDIO 2 - LABORATORIO DE PLANTAS": {
+            "codigo": "26130",
+            "children": {}
+          },
+          "DAAA - PREDIO 2 - SALA DE AULA": {
+            "codigo": "26131",
+            "children": {}
+          },
+          "DAAA - PREDIO 2 - SALA DE HOMEOPATIA": {
+            "codigo": "26132",
+            "children": {}
+          },
+          "DAAA - PREDIO 2 - VARANDA": {
+            "codigo": "26133",
+            "children": {}
+          }
+        }
+      }
+    }
+  },
+  "DACC - DEP. ACADEMICO DE CIENCIA DA COMPUTACAO": {
+    "codigo": null,
+    "children": {
+      "DACC - DEP. ACADEMICO DE CIENCIA DA COMPUTACAO": {
+        "codigo": "26200",
+        "children": {}
+      },
+      "DACC -  LAB.INF.01 - PREDIO CENTRAL": {
+        "codigo": "26201",
+        "children": {}
+      },
+      "DACC - LAB.INF.02 - PREDIO CENTRAL": {
+        "codigo": "26202",
+        "children": {}
+      },
+      "DACC - LAB.INF.03 - PREDIO CENTRAL": {
+        "codigo": "26203",
+        "children": {}
+      },
+      "DACC - LAB.INF.04 - PREDIO CENTRAL": {
+        "codigo": "26204",
+        "children": {}
+      },
+      "DACC - LAB.INF.05 - PREDIO CENTRAL": {
+        "codigo": "26205",
+        "children": {}
+      },
+      "DACC - LAB.INF.06": {
+        "codigo": "26206",
+        "children": {}
+      },
+      "DACC - LAB.INF.07": {
+        "codigo": "26207",
+        "children": {}
+      },
+      "DACC - HALL": {
+        "codigo": "26208",
+        "children": {}
+      },
+      "DACC - SALA DE ESTUDOS": {
+        "codigo": "26209",
+        "children": {}
+      },
+      "DACC - SALA DOS PROFESSORES": {
+        "codigo": "26210",
+        "children": {}
+      },
+      "DACC - SALA 01": {
+        "codigo": "26211",
+        "children": {}
+      },
+      "DACC - SALA 02": {
+        "codigo": "26212",
+        "children": {}
+      },
+      "DACC - SALA DE SERVICOS": {
+        "codigo": "26213",
+        "children": {}
+      },
+      "DACC - SALA DE ALMOXARIFADO": {
+        "codigo": "26214",
+        "children": {}
+      },
+      "DACC - IF GNU - PREDIO CENTRAL": {
+        "codigo": "26215",
+        "children": {}
+      },
+      "DACC - ECOMP": {
+        "codigo": "26216",
+        "children": {}
+      },
+      "DACC - IPCA - LAB. GEOPROCESSANTO E EST. METEREOLOG.": {
+        "codigo": "26217",
+        "children": {}
+      }
+    }
+  },
+  "DACG - DEP. ACADEMICO DE CIENCIAS GERENCIAIS": {
+    "codigo": null,
+    "children": {
+      "DACG - DEP. ACADEMICO DE CIENCIAS GERENCIAIS": {
+        "codigo": "26300",
+        "children": {}
+      },
+      "DACG - SALAS DE AULA": {
+        "codigo": "26301",
+        "children": {}
+      },
+      "DACG - SALA DE REUNIOES": {
+        "codigo": "26302",
+        "children": {}
+      },
+      "DACG - SALA DE PROFESSORES 01": {
+        "codigo": "26303",
+        "children": {}
+      },
+      "DACG - SALA DE PROFESSORES 02": {
+        "codigo": "26304",
+        "children": {}
+      },
+      "DACG - LABORATORIO DE INFORMATICA": {
+        "codigo": "26305",
+        "children": {}
+      },
+      "DACG - ALMOXARIFADO": {
+        "codigo": "26306",
+        "children": {}
+      },
+      "DACG - CORREDORES": {
+        "codigo": "26307",
+        "children": {}
+      },
+      "DACG - SALA DE COORDENACAO DO CURSO DE ADM": {
+        "codigo": "26308",
+        "children": {}
+      }
+    }
+  },
+  "DCTA - DEP. ACADEMICO DE TECNOLOGIA DE ALIMENTOS": {
+    "codigo": null,
+    "children": {
+      "DCTA - DEP. ACADEMICO DE TECNOLOGIA DE ALIMENTOS": {
+        "codigo": "26400",
+        "children": {}
+      },
+      "DCTA 1": {
+        "codigo": null,
+        "children": {
+          "DCTA 1 - HALL": {
+            "codigo": "26401",
+            "children": {}
+          },
+          "DCTA 1 - CORREDOR": {
+            "codigo": "26402",
+            "children": {}
+          },
+          "DCTA 1 - SALA DE APOIO TECNICO": {
+            "codigo": "26403",
+            "children": {}
+          },
+          "DCTA 1 - SALA DE AULA": {
+            "codigo": "26404",
+            "children": {}
+          },
+          "DCTA 1 - SALA DE PROFESSORES 1": {
+            "codigo": "26405",
+            "children": {}
+          },
+          "DCTA 1 - SALA DE PROFESSORES 2": {
+            "codigo": "26406",
+            "children": {}
+          },
+          "DCTA 1 - LABORATORIO DE ANALISE FISICO-QUIMICA DE ALIMENTOS": {
+            "codigo": "26407",
+            "children": {}
+          },
+          "DCTA 1 - LABORATORIO DE PANIFICACAO E NOVOS PRODUTOS": {
+            "codigo": "26408",
+            "children": {}
+          },
+          "DCTA 1 - LABORATORIO DE MICROBIOLOGIA": {
+            "codigo": "26409",
+            "children": {}
+          },
+          "DCTA 1 - SOTAO": {
+            "codigo": "26410",
+            "children": {}
+          },
+          "DCTA 1 - DEPOSITO DE MATERIAL DE LIMPEZA": {
+            "codigo": "26411",
+            "children": {}
+          }
+        }
+      },
+      "DCTA 2": {
+        "codigo": null,
+        "children": {
+          "DCTA 2 - SALA DE AULA": {
+            "codigo": "26412",
+            "children": {}
+          },
+          "DCTA 2 - SALA DE PROFESSORES 1": {
+            "codigo": "26413",
+            "children": {}
+          },
+          "DCTA 2 - SALA DE PROFESSORES 2": {
+            "codigo": "26414",
+            "children": {}
+          }
+        }
+      },
+      "DCTA 3": {
+        "codigo": null,
+        "children": {
+          "DCTA 3 - HALL": {
+            "codigo": "26415",
+            "children": {}
+          },
+          "DCTA 3 - SALA DE AULA": {
+            "codigo": "26416",
+            "children": {}
+          },
+          "DCTA 3 - SALA DE PROFESSORES 1": {
+            "codigo": "26417",
+            "children": {}
+          },
+          "DCTA 3 - SALA DE PROFESSORES 2": {
+            "codigo": "26418",
+            "children": {}
+          },
+          "DCTA 3 - LABORATORIO DE MICROBIOLOGIA": {
+            "codigo": "26419",
+            "children": {}
+          },
+          "DCTA 3 - LABORATORIO DE ANALISE FISICO-QUIMICA DE ALIMENTOS": {
+            "codigo": "26420",
+            "children": {}
+          },
+          "DCTA 3 - LABORATORIO SENSORIAL": {
+            "codigo": "26421",
+            "children": {}
+          },
+          "DCTA 3 - LABORATORIO DE BIOLOGIA MOLECULAR": {
+            "codigo": "26422",
+            "children": {}
+          },
+          "DCTA 3 - ALMOXARIFADO 1 - REAGENTES QUÍMICOS": {
+            "codigo": "26423",
+            "children": {}
+          },
+          "DCTA 3 - ALMOXARIFADO 2 - MEIOS DE CULTURA": {
+            "codigo": "26424",
+            "children": {}
+          },
+          "DCTA 3 - ALMOXARIFADO 3 - VIDRARIAS": {
+            "codigo": "26425",
+            "children": {}
+          },
+          "DCTA 3 - ALMOXARIFADO 4 - PRODUTOS CONTROLADOS": {
+            "codigo": "26426",
+            "children": {}
+          },
+          "DCTA 3 - ARMAZENAMENTO DE GAS": {
+            "codigo": "26427",
+            "children": {}
+          },
+          "DCTA 3 - COZINHA": {
+            "codigo": "26428",
+            "children": {}
+          },
+          "DCTA 3 - ANEXO": {
+            "codigo": "26429",
+            "children": {}
+          }
+        }
+      },
+      "DCTA - LABORATORIO DE EMBALAGENS": {
+        "codigo": "26430",
+        "children": {}
+      },
+      "DCTA - LABORATORIO DE PROCESSAMENTO DE ALIMENTOS": {
+        "codigo": "26431",
+        "children": {}
+      },
+      "DCTA - SETOR DE FRUTAS": {
+        "codigo": "26432",
+        "children": {}
+      },
+      "DCTA - SETOR DE CARNES": {
+        "codigo": "26433",
+        "children": {}
+      },
+      "DCTA - CALDEIRA": {
+        "codigo": "26434",
+        "children": {}
+      },
+      "DCTA - LABORATORIO DE QUIMICA E MEIO AMBIENTE": {
+        "codigo": "26435",
+        "children": {}
+      },
+      "DCTA - PROGRAMA DE PÓS GRADUAÇÃO EM CIÊNCIA E TECNOLOGIA DE ALIMENTOS": {
+        "codigo": "26436",
+        "children": {}
+      }
+    }
+  },
+  "DAE - DEP. ACADEMICO DE EDUCACAO": {
+    "codigo": null,
+    "children": {
+      "DAE - DEP. ACADEMICO DE EDUCACAO": {
+        "codigo": "26500",
+        "children": {
+          "DAE - LABORATORIO DE BIOLOGIA (ANTIGO ALOJAMENTO / BLOCO B / SALA 2)": {
+            "codigo": "26501",
+            "children": {}
+          },
+          "DAE - SALA DE ARTES (ALOJAM./BLOCOB/SALA 8)": {
+            "codigo": "26502",
+            "children": {}
+          }
+        }
+      }
+    }
+  },
+  "DEMAFE - DEP. ACADEMICO DE MATEMATICA E FISICA": {
+    "codigo": null,
+    "children": {
+      "DEMAFE - DEP. ACADEMICO DE MATEMATICA E FISICA": {
+        "codigo": "26600",
+        "children": {}
+      },
+      "DEMAFE - LABORATORIO DE FISICA": {
+        "codigo": "26601",
+        "children": {}
+      },
+      "DEMAFE - LABORATORIO DE INFORMÁTICA": {
+        "codigo": "26602",
+        "children": {}
+      },
+      "DEMAFE - LABORATÓRIO DE MATEMÁTICA": {
+        "codigo": "26603",
+        "children": {}
+      },
+      "DEMAFE - SALA DOS PROFESSORES 2": {
+        "codigo": "26604",
+        "children": {}
+      },
+      "DEMAFE - SALA DOS PROFESSORES 2 - GABINETE 1": {
+        "codigo": "26605",
+        "children": {}
+      },
+      "DEMAFE - SALA DOS PROFESSORES 2 - GABINETE 2": {
+        "codigo": "26606",
+        "children": {}
+      },
+      "DEMAFE - SALA DOS PROFESSORES 2 - GABINETE 3": {
+        "codigo": "26607",
+        "children": {}
+      },
+      "DEMAFE - SALA DOS PROFESSORES 2 - GABINETE 4": {
+        "codigo": "26608",
+        "children": {}
+      },
+      "DEMAFE - SALA DOS PROFESSORES 2 - GABINETE REUNIÃO": {
+        "codigo": "26609",
+        "children": {}
+      },
+      "DEMAFE - SALA DOS PROFESSORES 3": {
+        "codigo": "26610",
+        "children": {}
+      },
+      "DEMAFE - SALA DOS PROFESSORES 3 - GABINETE 1": {
+        "codigo": "26611",
+        "children": {}
+      },
+      "DEMAFE - SALA DOS PROFESSORES 3 - GABINETE 2": {
+        "codigo": "26612",
+        "children": {}
+      },
+      "DEMAFE - SALA DOS PROFESSORES 3 - GABINETE 3": {
+        "codigo": "26613",
+        "children": {}
+      },
+      "DEMAFE - SALA DOS PROFESSORES 3 - GABINETE 4": {
+        "codigo": "26614",
+        "children": {}
+      },
+      "DEMAFE - SALA DOS PROFESSORES 3 - GABINETE 5": {
+        "codigo": "26615",
+        "children": {}
+      },
+      "DEMAFE - SALA DOS PROFESSORES 3 - GABINETE 6": {
+        "codigo": "26616",
+        "children": {}
+      },
+      "SALA DE AULA 4": {
+        "codigo": "26617",
+        "children": {}
+      },
+      "SALA DE AULA 5": {
+        "codigo": "26618",
+        "children": {}
+      },
+      "SALA DE AULA 6": {
+        "codigo": "26619",
+        "children": {}
+      },
+      "DMAFE - IPCA - LAB PESQUISA ENS DE MAT - LAPEM": {
+        "codigo": "26620",
+        "children": {}
+      }
+    }
+  },
+  "DZO - DEP. ACADEMICO DE ZOOTECNIA": {
+    "codigo": null,
+    "children": {
+      "DZO - DEP. ACADEMICO DE ZOOTECNIA": {
+        "codigo": "26700",
+        "children": {}
+      },
+      "DZO - PREDIO DA ZOOTECNIA - SALA 1": {
+        "codigo": "26701",
+        "children": {}
+      },
+      "DZO - PREDIO DA ZOOTECNIA - SALA 2": {
+        "codigo": "26702",
+        "children": {}
+      },
+      "DZO - PREDIO DA ZOOTECNIA - SALA 3": {
+        "codigo": "26703",
+        "children": {}
+      },
+      "DZO - ANFITEATRO 1 - SALA 4": {
+        "codigo": "26704",
+        "children": {}
+      },
+      "DZO - ANFITEATRO 2 - SALA 5": {
+        "codigo": "26705",
+        "children": {}
+      },
+      "DZO - SALA DE PROFESSORES E REUNIÃO": {
+        "codigo": "26707",
+        "children": {}
+      },
+      "DZO - SALA 6": {
+        "codigo": "26708",
+        "children": {}
+      },
+      "DZO - SALA 7": {
+        "codigo": "26709",
+        "children": {}
+      },
+      "DZO - PREDIO DA ZOOTECNIA - SALA DOS PROFESSORES 1": {
+        "codigo": "26710",
+        "children": {}
+      },
+      "DZO - PREDIO DA ZOOTECNIA - SALA DOS PROFESSORES 2": {
+        "codigo": "26711",
+        "children": {}
+      },
+      "DZO - SALA DE PROFESSORES E REUNIAO": {
+        "codigo": "26712",
+        "children": {}
+      },
+      "DZO - SALAS PROF / COZ / LAB PEIXES - CASA ANTIGA": {
+        "codigo": "26713",
+        "children": {}
+      },
+      "DZO - PREDIO DA ZOOTECNIA": {
+        "codigo": null,
+        "children": {
+          "DZO - PREDIO ZOOTECNIA - LAB. HISTOLOGIA E PARASIT": {
+            "codigo": "26714",
+            "children": {}
+          },
+          "DZO - PREDIO DA ZOOTECNIA- LAB. DE INFORMATICA": {
+            "codigo": "26715",
+            "children": {}
+          },
+          "DZO - PREDIO DA ZOOTECNIA - SALA 9": {
+            "codigo": "26717",
+            "children": {}
+          },
+          "DZO - SALA 1 - LABORATORIO DE BROMATOLOGIA": {
+            "codigo": "26718",
+            "children": {}
+          },
+          "DZO - SALA 2 - LABORATORIO ANATOMIA ANIMAL": {
+            "codigo": "26719",
+            "children": {}
+          },
+          "DZO - SALA 3 - LABORATORIO ANALISES ESPECIAIS": {
+            "codigo": "26720",
+            "children": {}
+          },
+          "DZO - SALA 4 - ESCRITORIO": {
+            "codigo": "26721",
+            "children": {}
+          },
+          "DZO - SALA 5 / 9- MOINHOS, ESTUFAS E FREEZERS": {
+            "codigo": "26722",
+            "children": {}
+          },
+          "DZO - SALA 6 / 7 - ALMOXARIFADO": {
+            "codigo": "26723",
+            "children": {}
+          },
+          "DZO - SALA 6": {
+            "codigo": "26706",
+            "children": {}
+          }
+        }
+      },
+      "DZO - SALA 8 - COZINHA/ CORREDOR": {
+        "codigo": "26724",
+        "children": {}
+      },
+      "DZO - SALA 10 - DEPOSITO": {
+        "codigo": "26725",
+        "children": {}
+      },
+      "DZO - GERENCIA DE PRODUCAO ZOOTECNIA": {
+        "codigo": "26726",
+        "children": {}
+      },
+      "DZO - FRANGO- POSTURA / COTURNICULTURA": {
+        "codigo": "26727",
+        "children": {}
+      },
+      "DZO - PSICULTURA": {
+        "codigo": "26728",
+        "children": {}
+      },
+      "DZO - ABATEDOURO / ORDENHA /ESTABULO": {
+        "codigo": "26729",
+        "children": {}
+      },
+      "DZO - FABRICA DE RACAO": {
+        "codigo": "26730",
+        "children": {}
+      },
+      "DZO - DEPOSITO DA ZOOTECNIA - PAIOL": {
+        "codigo": "26731",
+        "children": {}
+      },
+      "DZO - DEPOSITO EQUINOCULTURA": {
+        "codigo": "26732",
+        "children": {}
+      },
+      "DZO - SALA VETERINARIO": {
+        "codigo": "26733",
+        "children": {}
+      },
+      "DZO - SUINOCULTURA / INSEMINACAO ART / SL ADM": {
+        "codigo": "26734",
+        "children": {}
+      },
+      "DZO - PIGMAKER": {
+        "codigo": "26735",
+        "children": {}
+      },
+      "DZO - SALA MESTRADO": {
+        "codigo": "26736",
+        "children": {}
+      },
+      "DZO - GALPAO EXPERIMENTAL DE AVICULTURA": {
+        "codigo": "26737",
+        "children": {}
+      }
+    }
+  },
+  "NUCLEO DE EDUCACAO FISICA E SAUDE": {
+    "codigo": null,
+    "children": {
+      "NEFI - NUCLEO DE EDUCACAO FISICA": {
+        "codigo": "26800",
+        "children": {}
+      },
+      "ACADEMIA": {
+        "codigo": "26801",
+        "children": {}
+      },
+      "QUADRA POLIESPORTIVA 1": {
+        "codigo": "26803",
+        "children": {}
+      },
+      "QUADRA POLIESPORTIVA 2": {
+        "codigo": "26804",
+        "children": {}
+      },
+      "CENTRO DE TREINAMENTO DE TENIS DE MESA E LUTAS": {
+        "codigo": "26805",
+        "children": {}
+      },
+      "LABORATORIOS": {
+        "codigo": null,
+        "children": {
+          "LABORATORIO DE MEDIDAS E AVALIACAO": {
+            "codigo": "26807",
+            "children": {}
+          },
+          "LABORATORIO DE CINEANTROPOMETRIA": {
+            "codigo": "26808",
+            "children": {}
+          },
+          "LABORATORIO DE NUTRICAO APLICADA": {
+            "codigo": "26809",
+            "children": {}
+          },
+          "LABORATORIO DE PRATICAS PEDAGOGICAS": {
+            "codigo": "26810",
+            "children": {}
+          },
+          "EFI - ANATOMIA": {
+            "codigo": "26806",
+            "children": {}
+          }
+        }
+      },
+      "COORDENACAO": {
+        "codigo": null,
+        "children": {
+          "SALA COORDENAÇÃO DE GRADUACAO EM EDUCACAO FISICA - SALA 1": {
+            "codigo": "26811",
+            "children": {}
+          },
+          "SALA COORDENAÇÃO DE GRADUACAO EM EDUCACAO FISICA - SALA 2": {
+            "codigo": "26812",
+            "children": {}
+          },
+          "SALA COORDENAÇÃO DE GRADUACAO EM EDUCACAO FISICA - SALA 3": {
+            "codigo": "26813",
+            "children": {}
+          },
+          "SALA COORDENAÇÃO DE GRADUACAO EM EDUCACAO FISICA - SALA 4": {
+            "codigo": "26814",
+            "children": {}
+          }
+        }
+      },
+      "SALA COORDENAÇÃO DE GRADUACAO EM EDUCACAO FISICA": {
+        "codigo": "26802",
+        "children": {}
+      }
+    }
+  },
+  "NUCLEO DE DIREITO": {
+    "codigo": null,
+    "children": {
+      "NUCLEO DE DIREITO": {
+        "codigo": "26900",
+        "children": {}
+      },
+      "NUCLEO DE DIREITO - SALA DE AULA 1 - PRATICA JURIDICA": {
+        "codigo": "26901",
+        "children": {}
+      },
+      "PAPRE - POSTO DE ATENDIMENTO PRÉ PROCESSUAL": {
+        "codigo": "26902",
+        "children": {}
+      }
+    }
+  },
+  "DIRETORIA DE ADMINISTRACAO E PLANEJAMENTO": {
+    "codigo": null,
+    "children": {
+      "DIRETORIA DE ADMINISTRACAO E PLANEJAMENTO": {
+        "codigo": "30000",
+        "children": {}
+      },
+      "PREDIO ADMINISTRATIVO": {
+        "codigo": null,
+        "children": {
+          "PRÉDIO ADMINISTRATIVO - SALA DE REUNIAO": {
+            "codigo": "30001",
+            "children": {}
+          },
+          "PREDIO ADMINISTRATIVO - SALA DIRETORIA DE ADMINISTRACAO": {
+            "codigo": "30002",
+            "children": {}
+          },
+          "PREDIO ADMINISTRATIVO - CASU": {
+            "codigo": "30003",
+            "children": {}
+          },
+          "PRÉDIO ADMINISTRATIVO - COPA": {
+            "codigo": "30004",
+            "children": {}
+          },
+          "PRÉDIO ADMINISTRATIVO - COPA - DEPÓSITO (INSTRUMENTOS MUSICAIS)": {
+            "codigo": "30005",
+            "children": {}
+          },
+          "PRÉDIO ADMINISTRATIVO - COPA - SALA DML TERCEIRIZADOS": {
+            "codigo": "30006",
+            "children": {}
+          },
+          "PRÉDIO ADMINISTRATIVO - SALA TELEFONISTA": {
+            "codigo": "30007",
+            "children": {}
+          }
+        }
+      },
+      "GUARITA 1 - IGREJINHA": {
+        "codigo": "30008",
+        "children": {}
+      },
+      "GUARITA 2 - AGRICULTURA": {
+        "codigo": "30009",
+        "children": {}
+      },
+      "POSTO DE VIGILANCIA / VIGILANTE": {
+        "codigo": "30010",
+        "children": {}
+      },
+      "ALMOXARIFADO": {
+        "codigo": null,
+        "children": {
+          "ALMOXARIFADO": {
+            "codigo": "31100",
+            "children": {}
+          },
+          "ALMOXARIFADO - SOTAO": {
+            "codigo": "31101",
+            "children": {}
+          }
+        }
+      },
+      "PATRIMONIO": {
+        "codigo": null,
+        "children": {
+          "PATRIMONIO": {
+            "codigo": "31200",
+            "children": {}
+          },
+          "SALA PATRIMÔNIO": {
+            "codigo": "31201",
+            "children": {}
+          },
+          "PATRIMONIO - GALPAO 1": {
+            "codigo": "31202",
+            "children": {}
+          },
+          "PATRIMONIO - GALPAO 2 - AVALIACAO": {
+            "codigo": "31203",
+            "children": {}
+          },
+          "PATRIMONIO - GALPAO 2 - DOACAO": {
+            "codigo": "31204",
+            "children": {}
+          },
+          "PATRIMONIO - GALPAO 2 - IRRECUPERÁVEL": {
+            "codigo": "31205",
+            "children": {}
+          },
+          "PATRIMONIO - LAVANDERIA - AVALIACAO": {
+            "codigo": "31206",
+            "children": {}
+          },
+          "PATRIMONIO - LAVANDERIA - DOACAO": {
+            "codigo": "31207",
+            "children": {}
+          },
+          "PATRIMONIO - LAVANDERIA - IRRECUPERÁVEL": {
+            "codigo": "31208",
+            "children": {}
+          },
+          "PATRIMONIO - ESCOLINHA": {
+            "codigo": "31209",
+            "children": {}
+          },
+          "REAVALIACAO - MATERIAL DE CONSUMO": {
+            "codigo": "31210",
+            "children": {}
+          },
+          "PATRIMONIO - GALPAO 2": {
+            "codigo": "31211",
+            "children": {}
+          }
+        }
+      },
+      "LICITACAO": {
+        "codigo": "31300",
+        "children": {}
+      },
+      "CONTRATOS": {
+        "codigo": "31400",
+        "children": {}
+      },
+      "EXECUCAO FINANCEIRA": {
+        "codigo": "31500",
+        "children": {}
+      },
+      "CONTABILIDADE": {
+        "codigo": "31600",
+        "children": {}
+      },
+      "TRANSPORTE": {
+        "codigo": null,
+        "children": {
+          "TRANSPORTE": {
+            "codigo": "31700",
+            "children": {}
+          },
+          "TRANSPORTE - SALA": {
+            "codigo": "31701",
+            "children": {}
+          },
+          "TRANSPORTE - GARAGEM": {
+            "codigo": "31702",
+            "children": {}
+          }
+        }
+      }
+    }
+  },
+  "DIRETORIA DE EXTENSÃO": {
+    "codigo": null,
+    "children": {
+      "DIRETORIA DE EXTENSÃO": {
+        "codigo": "40000",
+        "children": {}
+      },
+      "SARC - SEÇÃO DE ARTE E CULTURA": {
+        "codigo": "41000",
+        "children": {}
+      },
+      "SEÇÃO DE ESTÁGIO": {
+        "codigo": "42000",
+        "children": {}
+      },
+      "RELAÇÕES INSTITUCIONAIS": {
+        "codigo": "43000",
+        "children": {}
+      },
+      "SEÇÃO DE AÇÕES COMUNITÁRIAS": {
+        "codigo": "44000",
+        "children": {}
+      },
+      "SALA PROJETO PARTIU IF": {
+        "codigo": "44001",
+        "children": {}
+      },
+      "SALA DA DIRETORIA DE EXTENSÃO": {
+        "codigo": "45000",
+        "children": {}
+      },
+      "SALA DE REUNIÃO": {
+        "codigo": "46000",
+        "children": {}
+      },
+      "EMPRESA JUNIOR": {
+        "codigo": null,
+        "children": {
+          "EMPRESA JUNIOR": {
+            "codigo": "47000",
+            "children": {}
+          },
+          "EMPRESA JUNIOR AGROECO JR (ANTIGO ALOJAMENTO / BLOCO B / SALA 3)": {
+            "codigo": "47001",
+            "children": {}
+          },
+          "EMPRESA JUNIOR EMCOMP (ANTIGO ALOJAMENTO / BLOCO B / SALA 4)": {
+            "codigo": "47002",
+            "children": {}
+          }
+        }
+      },
+      "TEATRO (ANTIGO ALOJAMENTO/BLOCO B/SALA 5)": {
+        "codigo": "48000",
+        "children": {}
+      }
+    }
+  },
+  "DIRETORIA DE PESQUISA E POS-GRADUACAO": {
+    "codigo": null,
+    "children": {
+      "DIRETORIA DE PESQUISA E POS-GRADUACAO": {
+        "codigo": "50000",
+        "children": {}
+      },
+      "POS-GRADUAÇÃO LATO SENSU": {
+        "codigo": null,
+        "children": {
+          "ESPECIALIZACAO": {
+            "codigo": "51000",
+            "children": {}
+          },
+          "ESPECIALIZACAO AGROECOLOGIA": {
+            "codigo": "51100",
+            "children": {}
+          },
+          "ESPECIALIZACAO DESENVOLVIMENTO WEB": {
+            "codigo": "51200",
+            "children": {}
+          },
+          "ESPECIALIZACAO ENSINO DE MATEMATICA E FISICA": {
+            "codigo": "51300",
+            "children": {}
+          }
+        }
+      },
+      "MESTRADO": {
+        "codigo": null,
+        "children": {
+          "MESTRADO": {
+            "codigo": "52000",
+            "children": {}
+          },
+          "MESTRADO PROFEPT": {
+            "codigo": null,
+            "children": {
+              "MESTRADO PROFEPT": {
+                "codigo": "52100",
+                "children": {}
+              },
+              "PROFEPT - SALA DA COORDENACAO": {
+                "codigo": "52101",
+                "children": {}
+              },
+              "PROFEPT - SALAS DE AULA": {
+                "codigo": "52102",
+                "children": {}
+              }
+            }
+          },
+          "MESTRADO PROFISSIONAL NUTRICAO E PRODUCAO ANIMAL": {
+            "codigo": "52200",
+            "children": {}
+          },
+          "MESTRADO PROFISSIONAL ALIMENTOS": {
+            "codigo": "52300",
+            "children": {}
+          }
+        }
+      },
+      "DOUTORADO": {
+        "codigo": "53000",
+        "children": {}
+      },
+      "NITTEC": {
+        "codigo": "54000",
+        "children": {}
+      },
+      "IF MAKER / NITTEC / IPCA": {
+        "codigo": "54001",
+        "children": {}
+      },
+      "GERENCIA DE PESQUISA": {
+        "codigo": "55000",
+        "children": {}
+      }
+    }
+  },
+  "DIRETORIA DE DESENVOLVIMENTO INSTITUCIONAL": {
+    "codigo": null,
+    "children": {
+      "DIRETORIA DE DESENVOLVIMENTO INSTITUCIONAL": {
+        "codigo": "60000",
+        "children": {}
+      },
+      "PREFEITURA": {
+        "codigo": null,
+        "children": {
+          "PREFEITURA": {
+            "codigo": "61000",
+            "children": {}
+          },
+          "VIGILANCIA": {
+            "codigo": "61100",
+            "children": {}
+          },
+          "RECICLAGEM": {
+            "codigo": "61200",
+            "children": {}
+          },
+          "SEÇÃO DE SERVICO DE APOIO": {
+            "codigo": "61300",
+            "children": {}
+          },
+          "PREFEITURA - ESTACAO DE TRATAMENTO DE AGUA": {
+            "codigo": "61400",
+            "children": {}
+          },
+          "PREFEITURA - MANUTEN. E DEPOS. MATER.CONSTRU": {
+            "codigo": "61401",
+            "children": {}
+          },
+          "PREFEITURA - SERRALHERIA": {
+            "codigo": "61402",
+            "children": {}
+          },
+          "PREFEITURA - CARPINTARIA": {
+            "codigo": "61403",
+            "children": {}
+          }
+        }
+      },
+      "COORDENACAO GERAL DE PRODUCAO": {
+        "codigo": null,
+        "children": {
+          "COORDENACAO GERAL DE PRODUCAO": {
+            "codigo": "62000",
+            "children": {}
+          },
+          "MECANIZACAO AGRICOLA": {
+            "codigo": "62100",
+            "children": {}
+          },
+          "POSTO DE VENDAS": {
+            "codigo": "62200",
+            "children": {}
+          },
+          "SECAO DE PROJETOS E PRODUCAO AGROINDUSTRIAL": {
+            "codigo": "62300",
+            "children": {}
+          },
+          "PADARIA": {
+            "codigo": "62301",
+            "children": {}
+          },
+          "FRUTAS": {
+            "codigo": "62302",
+            "children": {}
+          },
+          "CARNES": {
+            "codigo": "62303",
+            "children": {}
+          },
+          "INDUSTRIAS RURAIS": {
+            "codigo": "62304",
+            "children": {}
+          },
+          "AGROINDUSTRIA - ESCRITORIO E ALMOXARIFADO": {
+            "codigo": "62305",
+            "children": {}
+          },
+          "LATICINIO": {
+            "codigo": "62306",
+            "children": {}
+          },
+          "CALDEIRA": {
+            "codigo": "62307",
+            "children": {}
+          }
+        }
+      },
+      "GERENCIA DE TECNOLOGIA DA INFORMACAO": {
+        "codigo": null,
+        "children": {
+          "GERENCIA DE TECNOLOGIA DA INFORMACAO": {
+            "codigo": "63000",
+            "children": {}
+          },
+          "TI - DATACENTER": {
+            "codigo": "63001",
+            "children": {}
+          }
+        }
+      }
+    }
+  },
+  "DIRETOR GERAL": {
+    "codigo": null,
+    "children": {
+      "DIRETOR GERAL": {
+        "codigo": "70000",
+        "children": {}
+      },
+      "EMPRESTIMO DE BENS": {
+        "codigo": "70001",
+        "children": {}
+      },
+      "AUDITORIA INTERNA": {
+        "codigo": "70002",
+        "children": {}
+      },
+      "ARQUIVO MORTO / GERAL": {
+        "codigo": "70003",
+        "children": {}
+      },
+      "CESSAO DE BENS": {
+        "codigo": "70004",
+        "children": {}
+      },
+      "SALAO NOBRE": {
+        "codigo": "70005",
+        "children": {}
+      },
+      "GABINETE": {
+        "codigo": "70006",
+        "children": {}
+      },
+      "GESTAO DE PESSOAS": {
+        "codigo": "70007",
+        "children": {}
+      },
+      "FUNDACAO": {
+        "codigo": null,
+        "children": {
+          "FUNDACAO - REFEITORIO": {
+            "codigo": "70009",
+            "children": {}
+          },
+          "FUNDACAO - DORMITORIO 1": {
+            "codigo": "70011",
+            "children": {}
+          },
+          "FUNDACAO - DORMITORIO 2": {
+            "codigo": "70012",
+            "children": {}
+          },
+          "FUNDACAO - DORMITORIO 3": {
+            "codigo": "70013",
+            "children": {}
+          },
+          "FUNDACAO - DORMITORIO 4": {
+            "codigo": "70014",
+            "children": {}
+          },
+          "FUNDACAO - DORMITORIO 5": {
+            "codigo": "70015",
+            "children": {}
+          },
+          "FUNDACAO - DORMITORIO 6": {
+            "codigo": "70016",
+            "children": {}
+          },
+          "FUNDACAO - DORMITORIO 7": {
+            "codigo": "70017",
+            "children": {}
+          },
+          "FUNDACAO - DORMITORIO 8": {
+            "codigo": "70018",
+            "children": {}
+          },
+          "FUNDACAO - DORMITORIO 9": {
+            "codigo": "70019",
+            "children": {}
+          },
+          "FUNDACAO - DORMITORIO 10": {
+            "codigo": "70020",
+            "children": {}
+          },
+          "FUNDACAO - DORMITORIO 11": {
+            "codigo": "70021",
+            "children": {}
+          },
+          "FUNDACAO - HALL SEGUNDO ANDAR": {
+            "codigo": "70022",
+            "children": {}
+          },
+          "FUNDACAO - SALA SEGUNDO ANDAR": {
+            "codigo": "70023",
+            "children": {}
+          },
+          "FUNDACAO - ANFITEATRO JARGAS FURTADO": {
+            "codigo": "70010",
+            "children": {}
+          }
+        }
+      },
+      "CENTRO DE VIVENCIA / CANTINA": {
+        "codigo": "70024",
+        "children": {}
+      },
+      "ALOJAMENTO - BLOCO C": {
+        "codigo": null,
+        "children": {
+          "ALOJAMENTO - BLOCO C - QUARTO 1": {
+            "codigo": "70025",
+            "children": {}
+          },
+          "ALOJAMENTO - BLOCO C - QUARTO 2": {
+            "codigo": "70026",
+            "children": {}
+          },
+          "ALOJAMENTO - BLOCO C - QUARTO 3": {
+            "codigo": "70027",
+            "children": {}
+          },
+          "ALOJAMENTO - BLOCO C - QUARTO 4": {
+            "codigo": "70028",
+            "children": {}
+          },
+          "ALOJAMENTO - BLOCO C - QUARTO 5": {
+            "codigo": "70029",
+            "children": {}
+          },
+          "ALOJAMENTO - BLOCO C - QUARTO 6": {
+            "codigo": "70030",
+            "children": {}
+          },
+          "ALOJAMENTO - BLOCO C - QUARTO 7": {
+            "codigo": "70031",
+            "children": {}
+          }
+        }
+      },
+      "ALOJAMENTO - BLOCO D": {
+        "codigo": null,
+        "children": {
+          "ALOJAMENTO - BLOCO D - QUARTO 1": {
+            "codigo": "70032",
+            "children": {}
+          },
+          "ALOJAMENTO - BLOCO D - QUARTO 2": {
+            "codigo": "70033",
+            "children": {}
+          },
+          "ALOJAMENTO - BLOCO D - QUARTO 3": {
+            "codigo": "70034",
+            "children": {}
+          },
+          "ALOJAMENTO - BLOCO D - QUARTO 4": {
+            "codigo": "70035",
+            "children": {}
+          },
+          "ALOJAMENTO - BLOCO D - QUARTO 5": {
+            "codigo": "70036",
+            "children": {}
+          },
+          "ALOJAMENTO - BLOCO D - QUARTO 6": {
+            "codigo": "70037",
+            "children": {}
+          },
+          "ALOJAMENTO - BLOCO D - QUARTO 7": {
+            "codigo": "70038",
+            "children": {}
+          },
+          "ALOJAMENTO - GALPAO / DEPOSITO": {
+            "codigo": "70039",
+            "children": {}
+          }
+        }
+      },
+      "COMUNICACAO": {
+        "codigo": null,
+        "children": {
+          "COMUNICACAO": {
+            "codigo": "71000",
+            "children": {}
+          },
+          "SALA DA COMUNICACAO - FUNDACAO": {
+            "codigo": "71002",
+            "children": {}
+          },
+          "SALA DA COMUNICACAO - PREDIO ADMINISTRATIVO / BLOCO B / SALA 7": {
+            "codigo": "71001",
+            "children": {}
+          }
+        }
+      }
+    }
+  }
+};
+        
+        let totalItems = 0;
+        
+        function createTreeItem(name, data, level) {
+            const hasChildren = Object.keys(data.children).length > 0;
+            const item = document.createElement('div');
+            item.className = `tree-item level-${level}${hasChildren ? '' : ' no-children'}`;
+            
+            const header = document.createElement('div');
+            header.className = 'tree-header';
+            
+            const icon = document.createElement('span');
+            icon.className = 'tree-icon';
+            icon.textContent = hasChildren ? '▶' : '📄';
+            
+            const nameSpan = document.createElement('span');
+            nameSpan.className = 'tree-name';
+            nameSpan.textContent = name;
+            
+            header.appendChild(icon);
+            header.appendChild(nameSpan);
+            
+            if (data.codigo) {
+                const codigo = document.createElement('span');
+                codigo.className = 'codigo';
+                codigo.textContent = data.codigo;
+                header.appendChild(codigo);
+                totalItems++;
+            }
+            
+            item.appendChild(header);
+            
+            if (hasChildren) {
+                const children = document.createElement('div');
+                children.className = 'tree-children';
+                
+                const sortedChildren = Object.entries(data.children).sort((a, b) => 
+                    a[0].localeCompare(b[0], 'pt-BR')
+                );
+                
+                for (const [childName, childData] of sortedChildren) {
+                    children.appendChild(createTreeItem(childName, childData, level + 1));
+                }
+                
+                item.appendChild(children);
+                
+                header.addEventListener('click', () => {
+                    item.classList.toggle('expanded');
+                });
+            }
+            
+            return item;
+        }
+        
+        function renderTree() {
+            const root = document.getElementById('treeRoot');
+            root.innerHTML = '';
+            totalItems = 0;
+            
+            const sortedTree = Object.entries(treeData).sort((a, b) => 
+                a[0].localeCompare(b[0], 'pt-BR')
+            );
+            
+            for (const [name, data] of sortedTree) {
+                root.appendChild(createTreeItem(name, data, 1));
+            }
+            
+            document.getElementById('totalItems').textContent = totalItems;
+            document.getElementById('foundItems').textContent = totalItems;
+        }
+        
+        function searchTree(query) {
+            const items = document.querySelectorAll('.tree-item');
+            query = query.trim().toLowerCase();
+
+            if (!query) {
+                items.forEach(item => {
+                    item.classList.remove('hidden');
+                    item.querySelector('.tree-header').classList.remove('highlight');
+                });
+                document.getElementById('foundItems').textContent = totalItems;
+                return;
+            }
+
+            const searchTerms = query.split(' ').filter(t => t);
+
+            // Fase 1: identificar correspondências exatas da consulta atual
+            const matched = new Set();
+            items.forEach(item => {
+                const header = item.querySelector('.tree-header');
+                const name = header.querySelector('.tree-name').textContent.toLowerCase();
+                const codigoEl = header.querySelector('.codigo');
+                const codigo = codigoEl ? codigoEl.textContent.toLowerCase() : '';
+                const isMatch = searchTerms.every(term =>
+                    name.includes(term) || codigo.includes(term)
+                );
+                header.classList.toggle('highlight', isMatch);
+                if (isMatch) matched.add(item);
+            });
+
+            // Fase 2: visível somente se for match, ancestral de match ou descendente de match
+            items.forEach(item => {
+                let show = matched.has(item);
+                if (!show) {
+                    // ancestral de algum match?
+                    show = Array.from(item.querySelectorAll('.tree-item')).some(d => matched.has(d));
+                }
+                if (!show) {
+                    // descendente de algum match?
+                    let p = item.parentElement;
+                    while (p) {
+                        if (p.classList && p.classList.contains('tree-item') && matched.has(p)) { show = true; break; }
+                        p = p.parentElement;
+                    }
+                }
+                item.classList.toggle('hidden', !show);
+            });
+
+            // Fase 3: expandir o caminho até cada match (e o próprio match, para exibir seu conteúdo)
+            matched.forEach(item => {
+                item.classList.add('expanded');
+                let p = item.parentElement;
+                while (p) {
+                    if (p.classList && p.classList.contains('tree-item')) p.classList.add('expanded');
+                    p = p.parentElement;
+                }
+            });
+
+            document.getElementById('foundItems').textContent = matched.size;
+        }
+        
+        function expandAll() {
+            document.querySelectorAll('.tree-item').forEach(item => {
+                if (item.querySelector('.tree-children')) {
+                    item.classList.add('expanded');
+                }
+            });
+        }
+        
+        function collapseAll() {
+            document.querySelectorAll('.tree-item').forEach(item => {
+                item.classList.remove('expanded');
+            });
+        }
+        
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            searchTree(e.target.value);
+        });
+        
+        // ===== FONTE DE DADOS EXTERNA (Google Sheets publicado como CSV) =====
+        // Cole entre as aspas o link "Publicar na web" no formato CSV.
+        // Se vazio ou indisponível, a página usa os dados embutidos acima (snapshot).
+        const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQv-dKuJALUIF_uXQX48p7qx3rAvoBCK_4WkvdUoFWYzTlr1wuW_xrd_HpQ5YTgD_TCJQo6GPeLJqEM/pub?gid=1002846518&single=true&output=csv';
+
+        function parseCSV(text) {
+            const rows = [];
+            let row = [], field = '', inQuotes = false;
+            for (let i = 0; i < text.length; i++) {
+                const ch = text[i];
+                if (inQuotes) {
+                    if (ch === '"') {
+                        if (text[i + 1] === '"') { field += '"'; i++; }
+                        else inQuotes = false;
+                    } else field += ch;
+                } else {
+                    if (ch === '"') inQuotes = true;
+                    else if (ch === ',') { row.push(field); field = ''; }
+                    else if (ch === '\n' || ch === '\r') {
+                        if (ch === '\r' && text[i + 1] === '\n') i++;
+                        row.push(field); field = '';
+                        if (row.some(c => c.trim() !== '')) rows.push(row);
+                        row = [];
+                    } else field += ch;
+                }
+            }
+            row.push(field);
+            if (row.some(c => c.trim() !== '')) rows.push(row);
+            return rows;
+        }
+
+        // Sanitização: remove caracteres de controle/invisíveis e limita tamanho.
+        // Defesa em profundidade caso a planilha seja adulterada.
+        function sanitizeField(s) {
+            return String(s)
+                .replace(/[\u0000-\u001F\u007F-\u009F\u200B-\u200F\u2028\u2029\uFEFF]/g, '')
+                .trim()
+                .slice(0, 200);
+        }
+
+        function buildTreeFromRows(rows) {
+            // rows[0] = cabeçalho; colunas: A-D níveis, E código
+            const MAX_ROWS = 5000;
+            if (rows.length > MAX_ROWS) rows = rows.slice(0, MAX_ROWS);
+            const tree = {};
+            const carry = [null, null, null, null];
+            for (let r = 1; r < rows.length; r++) {
+                const cells = rows[r];
+                const vals = [0, 1, 2, 3].map(i => {
+                    const v = sanitizeField(cells[i] || '');
+                    return v !== '' ? v : null;
+                });
+                const raw = sanitizeField(cells[4] || '');
+                const code = /^\d{1,9}$/.test(raw) ? String(parseInt(raw, 10)) : null;
+                if (!vals.some(v => v) && !code) continue;
+                let deepest = -1;
+                for (let i = 0; i < 4; i++) {
+                    if (vals[i] !== null) {
+                        carry[i] = vals[i];
+                        for (let j = i + 1; j < 4; j++) if (vals[j] === null) carry[j] = null;
+                        deepest = i;
+                    }
+                }
+                if (deepest === -1) continue;
+                const path = [];
+                for (let i = 0; i <= deepest; i++) if (carry[i] !== null) path.push(carry[i]);
+                let node = tree;
+                for (let i = 0; i < path.length - 1; i++) {
+                    if (!node[path[i]]) node[path[i]] = { codigo: null, children: {} };
+                    node = node[path[i]].children;
+                }
+                const leafName = path[path.length - 1];
+                if (!node[leafName]) node[leafName] = { codigo: null, children: {} };
+                if (code) node[leafName].codigo = code;
+            }
+            return tree;
+        }
+
+        // Impede que a página seja embutida em iframe de terceiros (clickjacking)
+        if (window.top !== window.self) {
+            try { window.top.location = window.self.location; }
+            catch (e) { document.documentElement.style.display = 'none'; }
+        }
+
+        async function init() {
+            if (CSV_URL) {
+                try {
+                    if (!CSV_URL.startsWith('https://docs.google.com/')) {
+                        throw new Error('Origem de dados não autorizada');
+                    }
+                    const resp = await fetch(CSV_URL, { cache: 'no-store' });
+                    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+                    const text = await resp.text();
+                    if (text.length > 2_000_000) throw new Error('Resposta excede limite');
+                    const tree = buildTreeFromRows(parseCSV(text));
+                    if (Object.keys(tree).length > 0) treeData = tree;
+                } catch (err) {
+                    console.warn('Falha ao carregar planilha externa, usando dados embutidos:', err);
+                }
+            }
+            renderTree();
+        }
+        init();
+    </script>
+</body>
+</html>
