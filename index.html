@@ -322,7 +322,7 @@
     </div>
 
     <script>
-        const treeData = {
+        let treeData = {
   "DIRETORIA DE ENSINO": {
     "codigo": null,
     "children": {
@@ -2159,7 +2159,88 @@
             searchTree(e.target.value);
         });
         
-        renderTree();
+        // ===== FONTE DE DADOS EXTERNA (Google Sheets publicado como CSV) =====
+        // Cole entre as aspas o link "Publicar na web" no formato CSV.
+        // Se vazio ou indisponível, a página usa os dados embutidos acima (snapshot).
+        const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQv-dKuJALUIF_uXQX48p7qx3rAvoBCK_4WkvdUoFWYzTlr1wuW_xrd_HpQ5YTgD_TCJQo6GPeLJqEM/pub?gid=1002846518&single=true&output=csv';
+
+        function parseCSV(text) {
+            const rows = [];
+            let row = [], field = '', inQuotes = false;
+            for (let i = 0; i < text.length; i++) {
+                const ch = text[i];
+                if (inQuotes) {
+                    if (ch === '"') {
+                        if (text[i + 1] === '"') { field += '"'; i++; }
+                        else inQuotes = false;
+                    } else field += ch;
+                } else {
+                    if (ch === '"') inQuotes = true;
+                    else if (ch === ',') { row.push(field); field = ''; }
+                    else if (ch === '\n' || ch === '\r') {
+                        if (ch === '\r' && text[i + 1] === '\n') i++;
+                        row.push(field); field = '';
+                        if (row.some(c => c.trim() !== '')) rows.push(row);
+                        row = [];
+                    } else field += ch;
+                }
+            }
+            row.push(field);
+            if (row.some(c => c.trim() !== '')) rows.push(row);
+            return rows;
+        }
+
+        function buildTreeFromRows(rows) {
+            // rows[0] = cabeçalho; colunas: A-D níveis, E código
+            const tree = {};
+            const carry = [null, null, null, null];
+            for (let r = 1; r < rows.length; r++) {
+                const cells = rows[r];
+                const vals = [0, 1, 2, 3].map(i => {
+                    const v = (cells[i] || '').trim();
+                    return v !== '' ? v : null;
+                });
+                let raw = (cells[4] || '').trim();
+                const code = raw !== '' ? String(parseInt(raw, 10)) : null;
+                if (!vals.some(v => v) && !code) continue;
+                let deepest = -1;
+                for (let i = 0; i < 4; i++) {
+                    if (vals[i] !== null) {
+                        carry[i] = vals[i];
+                        for (let j = i + 1; j < 4; j++) if (vals[j] === null) carry[j] = null;
+                        deepest = i;
+                    }
+                }
+                if (deepest === -1) continue;
+                const path = [];
+                for (let i = 0; i <= deepest; i++) if (carry[i] !== null) path.push(carry[i]);
+                let node = tree;
+                for (let i = 0; i < path.length - 1; i++) {
+                    if (!node[path[i]]) node[path[i]] = { codigo: null, children: {} };
+                    node = node[path[i]].children;
+                }
+                const leafName = path[path.length - 1];
+                if (!node[leafName]) node[leafName] = { codigo: null, children: {} };
+                if (code) node[leafName].codigo = code;
+            }
+            return tree;
+        }
+
+        async function init() {
+            if (CSV_URL) {
+                try {
+                    const resp = await fetch(CSV_URL, { cache: 'no-store' });
+                    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+                    const text = await resp.text();
+                    const tree = buildTreeFromRows(parseCSV(text));
+                    if (Object.keys(tree).length > 0) treeData = tree;
+                } catch (err) {
+                    console.warn('Falha ao carregar planilha externa, usando dados embutidos:', err);
+                }
+            }
+            renderTree();
+        }
+        init();
     </script>
 </body>
 </html>
