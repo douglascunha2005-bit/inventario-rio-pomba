@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src data:; style-src 'sha256-EJkLfwLU1YDbraRlHSdVSAttsJ0FX6Evl+KbYLz3ZpI='; script-src 'sha256-j1fTab621wFC/Lw5xnifCjRMvctlSCrj+z4lD+I5uaM='; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src data:; style-src 'sha256-ViwpDU7yczGMRylh47zWvk7+yCMW+ahcdP5c5YfyZ5c='; script-src 'sha256-ioBiH3oKcZE+sbPSDOvD3kS8HfVx1vsirV65RX5hnwU='; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <title>Pesquisa código locais do campus Rio Pomba</title>
 <style>
@@ -37,6 +37,7 @@ ul{list-style:none}
 .toggle.leaf{opacity:.55}
 .nome{flex:1}
 .codigo{background:#fff;color:#E32D2D;font-weight:700;padding:2px 10px;border-radius:12px;font-size:.92rem;letter-spacing:.5px}
+.node.folha{background:#FFE9A8;color:#333}
 .node.match{background:#FFE9A8 !important;color:#333 !important;outline:2px solid #d9b23c}
 .node.match .codigo{background:#fff;color:#E32D2D}
 footer{max-width:960px;margin:0 auto 30px;padding:0 16px;font-size:.8rem;color:#888}
@@ -100,8 +101,8 @@ function render(nodes, parentEl, ancestors){
   for(const n of nodes){
     const li=document.createElement('li');
     const row=document.createElement('div');
-    row.className='node nivel'+(n.level+1);
     const hasKids=n.children.length>0;
+    row.className='node nivel'+(n.level+1)+(hasKids?'':' folha');
     const tog=document.createElement('span');
     tog.className='toggle'+(hasKids?'':' leaf');
     tog.textContent=hasKids?'▸':'•';
