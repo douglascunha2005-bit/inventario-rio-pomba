@@ -32,4 +32,3 @@ CSP com hashes SHA-256 recalculados a cada build, render só via textContent,
 sanitização no JS, frame-busting, referrer no-referrer, logo em base64.
 
 ## Base validada de referência: 411 nós / 365 códigos.
-## Pendência conhecida: conferir 70010 "JARGAS" (provável "VARGAS").
