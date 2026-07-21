@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src data:; style-src 'sha256-EJkLfwLU1YDbraRlHSdVSAttsJ0FX6Evl+KbYLz3ZpI='; script-src 'sha256-ofncDUpG8m0dziiinJQkUIGpJyBksflwY9fJG++Pzak='; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src data:; style-src 'sha256-EJkLfwLU1YDbraRlHSdVSAttsJ0FX6Evl+KbYLz3ZpI='; script-src 'sha256-j1fTab621wFC/Lw5xnifCjRMvctlSCrj+z4lD+I5uaM='; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <title>Pesquisa código locais do campus Rio Pomba</title>
 <style>
@@ -164,8 +164,13 @@ function buscar(){
   for(const it of allItems) if(!visible.has(it)) it.li.classList.add('escondido');
   // fase 3: expandir caminho até matches (e o próprio match, para ver descendentes)
   collapseAll();
+  // nó que casa mas tem descendente que também casa é só "caminho": mantém a cor do nível
+  const endpoints=new Set(matched);
   for(const it of matched){
-    it.row.classList.add('match');
+    for(const a of it.ancestors) if(matched.has(a)) endpoints.delete(a);
+  }
+  for(const it of matched){
+    if(endpoints.has(it)) it.row.classList.add('match');
     for(const a of it.ancestors) setExpanded(a,true);
     setExpanded(it,true);
   }
