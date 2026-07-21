@@ -1,0 +1,36 @@
+name: Atualizar site a partir da planilha
+
+on:
+  push:
+    paths:
+      - "**.xlsx"
+      - "template.html"
+      - "gerar.py"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  gerar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Instalar dependência
+        run: pip install openpyxl
+
+      - name: Gerar index.html
+        run: python gerar.py
+
+      - name: Publicar
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git diff --cached --quiet || git commit -m "Atualiza site a partir da planilha (automático)"
+          git push
